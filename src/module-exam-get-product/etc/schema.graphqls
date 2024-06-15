@@ -5,5 +5,29 @@ type Query {
         pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
         currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
         sort: ProductAttributeSortInput @doc(description: "Specifies which attributes to sort on, and whether to return the results in ascending or descending order.")
-    ): Products @resolver(class: "Exam\\Qhodir\\Model\\Resolver\\GetProduct") @doc(description: "The products query searches for products that match the criteria specified in the search and filter attributes.") @cache(cacheIdentity: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Identity")
+    ): ProductsCustom @resolver(class: "Exam\\Qhodir\\Model\\Resolver\\GetProduct") @doc(description: "The products query searches for products that match the criteria specified in the search and filter attributes.") @cache(cacheIdentity: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Identity")
+}
+
+type productItems {
+      entity_id: Int
+      sku: String
+      name: String
+      price: Float
+      status: Boolean
+      description: String
+      short_description: String
+      weight: Float
+      dimension_package_height: Float
+      dimension_package_length: Float
+      dimension_package_width: Float
+}
+
+type ProductsCustom @doc(description: "Contains the results of a `products` query.") {
+    items: [productItems] @doc(description: "An array of products that match the specified search criteria.")
+    page_info: SearchResultPageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query.")
+    total_count: Int @doc(description: "The number of products that are marked as visible. By default, in complex products, parent products are visible, but their child products are not.")
+    filters: [LayerFilter] @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\LayerFilters") @doc(description: "Layered navigation filters array.") @deprecated(reason: "Use `aggregations` instead.")
+    aggregations (filter: AggregationsFilterInput): [Aggregation] @doc(description: "A bucket that contains the attribute code and label for each filterable option.") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Aggregations")
+    sort_fields: SortFields @doc(description: "An object that includes the default sort field and all available sort fields.") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Category\\SortFields")
+    suggestions: [SearchSuggestion] @doc(description: "An array of search suggestions for case when search query have no results.")
 }
